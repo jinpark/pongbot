@@ -671,8 +671,10 @@ app.post('/', function(req, res){
           });
           break;
       case "leaderboard":
-          var message = "";
-          res.json({text: "https://files.slack.com/files-pri/T0250FYAY-F02DPP8FG/image003.gif"})
+            Player.find({}).sort({'elo': 'descending'}).find( function(err, players) {
+              if (err) return handleError(err);
+              res.json(players);
+            });
           break;
       case "reset":
           var message = "";
