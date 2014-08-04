@@ -671,9 +671,14 @@ app.post('/', function(req, res){
           });
           break;
       case "leaderboard":
-            Player.find({}).sort({'elo': 'descending'}).find( function(err, players) {
+            Player.find({}).sort({'elo': 'descending'}).limit(5).find( function(err, players) {
               if (err) return handleError(err);
-              res.json(players);
+              var totalPlayers = "";
+                players.forEach(function(player, i, array){
+                  var playerstring = i + 1 + ". " + player.user_name + " - " + player.elo + "\n";
+                  totalPlayers += playerstring;
+                })
+              res.json({text: totalPlayers});
             });
           break;
       case "reset":
