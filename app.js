@@ -236,7 +236,7 @@ var pong = {
               if (err) return handleError(err);
             });
           } else if (challenge.state == "Accepted") {
-            cb("You've already accepted the challenge.");
+            cb(user_name + " has already accepted the challenge.");
           } else {
             cb("No challenge to accept.")
           }
