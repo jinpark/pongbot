@@ -553,6 +553,14 @@ var pong = {
       }
     });
   },
+  getRankings: function(players){
+    var rank = 1;
+    var totalPlayers = "";
+    players.forEach(function(player, i){
+      var playerstring = rank + ". " + player.user_name + " | " + player.wins + " wins " + player.losses + " losses \n";
+      totalPlayers += playerstring;
+    })
+  },
   getDuelGif: function(cb) {
     var gifs = [
       "http://i235.photobucket.com/albums/ee210/f4nt0mh43d/BadDuel.gif",
@@ -671,15 +679,12 @@ app.post('/', function(req, res){
           });
           break;
       case "leaderboard":
-            Player.find({}).sort({'elo': 'descending'}).limit(5).find( function(err, players) {
-              if (err) return handleError(err);
-              var totalPlayers = "";
-                players.forEach(function(player, i, array){
-                  var playerstring = i + 1 + ". " + player.user_name + " - " + player.elo + "\n";
-                  totalPlayers += playerstring;
-                })
-              res.json({text: totalPlayers});
-            });
+          var topN = params[2] || 5;
+          Player.find({$or:[{"wins":{"$ne":0}},{"losses":{"$ne":0}}]}).sort({'elo': 'descending', 'wins': 'descending'}).limit(topN).find( function(err, players) {
+            if (err) return handleError(err);
+            var totalPlayers = pong.getRankings(players);
+            res.json({text: totalPlayers});
+          });
           break;
       case "reset":
           var message = "";
