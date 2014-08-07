@@ -196,7 +196,7 @@ var pong = {
       if (err) return handleError(err);
       if (u) {
         if (u.currentChallenge) {
-          cb(u);
+          cb(u.currentChallenge);
         } else {
           cb(false);
         }
