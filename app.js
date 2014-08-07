@@ -137,10 +137,12 @@ var pong = {
             });
           } else {
             cb("There's already an active challenge.");
+            console.log(y2);
           }
         });
       } else {
         cb("There's already an active challenge.");
+        console.log(y);
       }
     });
   },
