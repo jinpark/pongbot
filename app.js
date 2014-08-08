@@ -568,11 +568,17 @@ var pong = {
   },
   getRankings: function(players){
     var rank = 1;
-    var totalPlayers = "";
+    var totalRankings = "";
     players.forEach(function(player, i){
+      if (players[i - 1]) {
+        if (players[i - 1].elo != player.elo){
+          rank = i + 1;
+        }
+      }
       var playerstring = rank + ". " + player.user_name + " | " + pluralize('win', player.wins, true) + " " + pluralize('loss', player.losses, true) + "\n";
-      totalPlayers += playerstring;
+      totalRankings += playerstring;
     })
+    return totalRankings
   },
   getDuelGif: function(cb) {
     var gifs = [
@@ -689,7 +695,7 @@ app.post('/', function(req, res){
           });
           break;
       case "leaderboard":
-          var topN = params[2] || 5;
+          var topN = params[2] || 10;
           Player.find({$or:[{"wins":{"$ne":0}},{"losses":{"$ne":0}}]}).sort({'elo': 'descending', 'wins': 'descending'}).limit(topN).find( function(err, players) {
             if (err) return handleError(err);
             var totalPlayers = pong.getRankings(players);
