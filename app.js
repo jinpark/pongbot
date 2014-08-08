@@ -92,7 +92,7 @@ var pong = {
   },
   getActiveChallenges: function(cb) {
     var activeChallengesString = "";
-    Challenge.find({state: "Accepted"}).sort({'date': 'desc'}).limit(5).find(function(err, activeChallenges) {
+    Challenge.find({state: "Accepted"}).sort({'date': 'asc'}).limit(5).find(function(err, activeChallenges) {
       if (err) return handleError(err);
       if (activeChallenges) {
         activeChallenges.forEach(function(challenge, i) {
