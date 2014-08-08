@@ -116,7 +116,7 @@ var pong = {
   },
   alreadyChallenged: function(challengeId) {
     Challenge.findOne({ _id: challengeId }, function(err, c) {
-      cb("There's already an active challenge between " + c.challenged[0] + " and " + c.challenger[0]);
+      return "There's already an active challenge between " + c.challenged[0] + " and " + c.challenger[0]
     });
   },
   createSingleChallenge: function(challenger, challenged, cb) {
@@ -141,11 +141,11 @@ var pong = {
               cb(message);
             });
           } else {
-            pong.alreadyChallenged(y2);
+            cb(pong.alreadyChallenged(y2));
           }
         });
       } else {
-        pong.alreadyChallenged(y);
+        cb(pong.alreadyChallenged(y))
       }
     });
   },
