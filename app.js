@@ -27,6 +27,8 @@ var express = require('express')
 
 var app = express();
 
+var TIMEZONE = 'America/New_York';
+
 var mongoUri = process.env.MONGOLAB_URI ||
   process.env.MONGOHQ_URL ||
   'mongodb://localhost/pingpong';
@@ -96,12 +98,12 @@ var pong = {
       if (err) return handleError(err);
       if (activeChallenges) {
         activeChallenges.forEach(function(challenge, i) {
-          var formattedDate = moment(challenge.date).tz('America/New_York').format('MMMM Do YYYY, h:mm:ss a');
+          var formattedDate = moment(challenge.date).tz(TIMEZONE).format('MMMM Do YYYY, h:mm:ss a');
           activeChallengesString += formattedDate + ": " + challenge.challenger + " vs " + challenge.challenged + "\n"
         });
         cb(activeChallengesString);
       } else {
-        cb('There are no active challenges/matches currently.');
+        cb('Currently, there are no active challenges/matches.');
       }
     });
   },
