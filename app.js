@@ -96,7 +96,7 @@ var pong = {
       if (err) return handleError(err);
       if (activeChallenges) {
         activeChallenges.forEach(function(challenge, i) {
-          var formattedDate = moment(challenge.date).format('MMMM Do YYYY, h:mm:ss a');
+          var formattedDate = moment.utc(challenge.date).tz('America/New_York').format('MMMM Do YYYY, h:mm:ss a');
           activeChallengesString += formattedDate + ": " + challenge.challenger + " vs " + challenge.challenged + "\n"
         });
         cb(activeChallengesString);
