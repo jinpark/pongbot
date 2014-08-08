@@ -136,13 +136,13 @@ var pong = {
               cb(message);
             });
           } else {
-            cb("There's already an active challenge.");
-            console.log(y2.challenger);
+            cb("There's already an active challenge between " + y2.challenger[0] + " vs " + user_name);
+            console.log(y2.challenger[0]);
           }
         });
       } else {
-        cb("There's already an active challenge.");
-        console.log(y.challenged);
+        cb("There's already an active challenge between " y.challenged[0] + " and " + user_name);
+        console.log(y.challenged[0]);
       }
     });
   },
