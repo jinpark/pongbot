@@ -141,7 +141,7 @@ var pong = {
           }
         });
       } else {
-        cb("There's already an active challenge between " y.challenged[0] + " and " + user_name);
+        cb("There's already an active challenge between " + y.challenged[0] + " and " + user_name);
         console.log(y.challenged[0]);
       }
     });
