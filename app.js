@@ -142,11 +142,17 @@ var pong = {
               cb(message);
             });
           } else {
-            cb(pong.alreadyChallenged(y2));
+            Challenge.findOne({ _id: y2 }, function(err, c) {
+              cb("There's already an active challenge between " + c.challenger[0] + " vs " + user_name);
+              console.log(y2.challenger[0]);
+            });
           }
         });
       } else {
-        cb(pong.alreadyChallenged(y))
+        Challenge.findOne({ _id: y }, function(err, c) {
+            cb("There's already an active challenge between " + c.challenged[0] + " vs " + user_name);
+            console.log(y.challenged[0]);
+        });
       }
     });
   },
