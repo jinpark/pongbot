@@ -145,14 +145,12 @@ var pong = {
           } else {
             Challenge.findOne({ _id: y2.currentChallenge }, function(err, c) {
               cb("There's already an active challenge between " + c.challenger[0] + " and " + c.challenged[0]);
-              console.log(y2.challenger[0]);
             });
           }
         });
       } else {
         Challenge.findOne({ _id: y.currentChallenge }, function(err, c) {
             cb("There's already an active challenge between " + c.challenged[0] + " and " + c.challenger[0]);
-            console.log(y.challenged[0]);
         });
       }
     });
