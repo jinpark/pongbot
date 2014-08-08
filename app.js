@@ -614,7 +614,29 @@ var pong = {
       "http://i.imgur.com/khGAqip.gif",
       "http://i.imgur.com/LU5E2mI.gif",
       "http://i.imgur.com/5Wxq8Sb.gif",
-      "http://i.imgur.com/BgFiaah.gif"
+      "http://i.imgur.com/BgFiaah.gif",
+      "http://i.imgur.com/Mh5qnlB.gif",
+      "http://i.imgur.com/eQGN47S.gif",
+      "http://i.imgur.com/6FC2LBa.gif",
+      "http://i.imgur.com/vJk2Feq.gif",
+      "http://i.imgur.com/CxGW3oH.gif",
+      "http://i.imgur.com/qm6B423.gif",
+      "http://i.imgur.com/qm6B423.gif",
+      "http://i.imgur.com/MAjoX5D.gif",
+      "http://i.imgur.com/2mY575N.gif",
+      "http://i.imgur.com/AIMqKoW.gif",
+      "http://i.imgur.com/4LvS9zJ.gif",
+      "http://i.imgur.com/mPjlDkZ.gif",
+      "http://i.imgur.com/wei0RrF.gif",
+      "http://i.imgur.com/V2bzEnG.gif",
+      "http://i.imgur.com/58hFsyK.gif",
+      "http://i.imgur.com/v3LgsEw.gif",
+      "http://i.imgur.com/rF1uoil.gif",
+      "http://i.imgur.com/r924Rvb.gif",
+      "http://i.imgur.com/OnaqJdR.gif",
+      "http://i.imgur.com/YOLNpSl.gif",
+      "http://i.imgur.com/QjrgyC2.gif",
+      "http://i.imgur.com/m5UjbMU.gif"
     ]
     var rand = gifs[Math.floor(Math.random() * gifs.length)];
     cb(rand);
