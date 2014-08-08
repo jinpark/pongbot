@@ -714,7 +714,7 @@ app.post('/', function(req, res){
           });
           break;
       case "active":
-        res.json({text: getActiveChallenges()});
+        res.json({text: pong.getActiveChallenges()});
       case "reset":
           var message = "";
           if (hook.user_name === "vy") {
