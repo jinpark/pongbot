@@ -94,17 +94,12 @@ var pong = {
     var activeChallengesString = "";
     Challenge.find({state: "Accepted"}).sort({'date': 'desc'}).limit(5).find(function(err, activeChallenges) {
       if (err) return handleError(err);
-      console.log(activeChallenges);
       activeChallenges.forEach(function(challenge, i) {
         var formattedDate = moment(challenge.date).format('MMMM Do YYYY, h:mm:ss a');
-        console.log(formattedDate);
         activeChallengesString += formattedDate + ": " + challenge.challenger + " vs " + challenge.challenged + "\n"
       });
+      return activeChallengesString
     });
-    if (activeChallengesString === "") {
-      return "There are no current active challenges"
-    }
-    return activeChallengesString
   },
   updateWins: function(user_name, cb) {
     var q = Player.where({ user_name: user_name });
