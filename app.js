@@ -91,12 +91,13 @@ var pong = {
     });
   },
   getActiveChallenges: function() {
-    var activeChallenges = Challenge.find({state: "Accepted"}).sort({'date': 'desc'});
     var activeChallengesString = "";
-    activeChallenges.forEach(function(challenge, i) {
-      var formattedDate = moment(challenge.date).format('MMMM Do YYYY, h:mm:ss a')
-      activeChallengesString += formattedDate + ": " + challenge.challenger + " vs " + challenge.challenged + "\n"
-    });
+    Challenge.find({state: "Accepted"}).sort({'date': 'desc'}, function(err, activeChallenges)
+      activeChallenges.forEach(function(challenge, i) {
+        var formattedDate = moment(challenge.date).format('MMMM Do YYYY, h:mm:ss a')
+        activeChallengesString += formattedDate + ": " + challenge.challenger + " vs " + challenge.challenged + "\n"
+      });
+    );
     if (activeChallengesString === "") {
       return "There are no current active challenges"
     }
@@ -706,7 +707,7 @@ app.post('/', function(req, res){
           });
           break;
       case "leaderboard":
-          var topN = params[2] || 10;
+          var topN = params[2] || 15;
           Player.find({$or:[{"wins":{"$ne":0}},{"losses":{"$ne":0}}]}).sort({'elo': 'descending', 'wins': 'descending'}).limit(topN).find( function(err, players) {
             if (err) return handleError(err);
             var totalPlayers = pong.getRankings(players);
