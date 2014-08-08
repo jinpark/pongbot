@@ -114,6 +114,11 @@ var pong = {
       }
     });
   },
+  alreadyChallenged: function(challengeId) {
+    Challenge.findOne({ _id: challengeId }, function(err, c) {
+      cb("There's already an active challenge between " + c.challenged[0] + " and " + c.challenger[0]);
+    });
+  },
   createSingleChallenge: function(challenger, challenged, cb) {
     var message = "";
     pong.checkChallenge(challenger, function(y) {
@@ -136,17 +141,11 @@ var pong = {
               cb(message);
             });
           } else {
-            Challenge.findOne({ _id: y2 }, function(err, c) {
-              cb("There's already an active challenge between " + c.challenger[0] + " vs " + challenged);
-              console.log(y2.challenger[0]);
-            });
+            pong.alreadyChallenged(y2);
           }
         });
       } else {
-        Challenge.findOne({ _id: y }, function(err, c) {
-            cb("There's already an active challenge between " + c.challenged[0] + " vs " + challenger);
-            console.log(y.challenged[0]);
-        });
+        pong.alreadyChallenged(y);
       }
     });
   },
