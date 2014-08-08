@@ -20,6 +20,7 @@
 var express = require('express')
 ,   bodyParser = require('body-parser')
 ,   mongoose = require('mongoose')
+,   pluralize = require('pluralize')
 ,   request = require('request')
 ,   Schema = mongoose.Schema;
 
@@ -574,7 +575,7 @@ var pong = {
           rank = i + 1;
         }
       }
-      var playerstring = rank + ". " + player.user_name + " | " + player.wins + " wins " + player.losses + " losses \n";
+      var playerstring = rank + ". " + player.user_name + " | " + pluralize('win', player.wins, true) + " " + pluralize('loss', player.losses, true) + "\n";
       totalRankings += playerstring;
     })
     return totalRankings
