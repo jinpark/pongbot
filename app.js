@@ -776,6 +776,12 @@ app.post('/', function(req, res){
             res.json({text: message});
           }
           break;
+      case "gifs":
+      case "gif":
+        pong.getDuelGif( function(gif) {
+          res.json({text: gif});
+        });
+        break;
       case "source":
           res.json({text: "https://github.com/andrewvy/opal-pongbot"});
           break;
