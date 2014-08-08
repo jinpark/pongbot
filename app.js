@@ -716,6 +716,7 @@ app.post('/', function(req, res){
             res.json({text: totalPlayers});
           });
           break;
+      case "matches":
       case "active":
         pong.getActiveChallenges(function(activeChallenges) {
           res.json({text: activeChallenges})
