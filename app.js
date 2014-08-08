@@ -143,14 +143,14 @@ var pong = {
             });
           } else {
             Challenge.findOne({ _id: y2 }, function(err, c) {
-              cb("There's already an active challenge between " + c.challenger[0] + " vs " + c.challenged[0]);
+              cb("There's already an active challenge between " + c.challenger[0] + " and " + c.challenged[0]);
               console.log(y2.challenger[0]);
             });
           }
         });
       } else {
         Challenge.findOne({ _id: y }, function(err, c) {
-            cb("There's already an active challenge between " + c.challenged[0] + " vs " + c.challenger[0]);
+            cb("There's already an active challenge between " + c.challenged[0] + " and " + c.challenger[0]);
             console.log(y.challenged[0]);
         });
       }
