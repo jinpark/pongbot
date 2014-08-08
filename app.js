@@ -565,7 +565,7 @@ var pong = {
       var playerstring = rank + ". " + player.user_name + " | " + player.wins + " wins " + player.losses + " losses \n";
       totalRankings += playerstring;
     })
-    return totalPlayers
+    return totalRankings
   },
   getDuelGif: function(cb) {
     var gifs = [
