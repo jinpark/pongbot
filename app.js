@@ -22,6 +22,7 @@ var express = require('express')
 ,   mongoose = require('mongoose')
 ,   pluralize = require('pluralize')
 ,   request = require('request')
+,   moment = require('moment')
 ,   Schema = mongoose.Schema;
 
 var app = express();
@@ -88,6 +89,18 @@ var pong = {
       if (err) return handleError(err);
       console.log(users)
     });
+  },
+  getActiveChallenges: function() {
+    var activeChallenges = Challenge.find({state: "Accepted"}).sort({'date': 'desc'});
+    var activeChallengesString = "";
+    activeChallenges.forEach(function(challenge, i) {
+      var formattedDate = moment(challenge.date).format('MMMM Do YYYY, h:mm:ss a')
+      activeChallengesString += formattedDate + ": " + challenge.challenger + " vs " + challenge.challenged + "\n"
+    });
+    if (activeChallengesString === "") {
+      return "There are no current active challenges"
+    }
+    return activeChallengesString
   },
   updateWins: function(user_name, cb) {
     var q = Player.where({ user_name: user_name });
@@ -700,6 +713,8 @@ app.post('/', function(req, res){
             res.json({text: totalPlayers});
           });
           break;
+      case "active":
+        res.json({text: getActiveChallenges()});
       case "reset":
           var message = "";
           if (hook.user_name === "vy") {
