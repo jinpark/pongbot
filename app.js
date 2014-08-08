@@ -114,9 +114,10 @@ var pong = {
       }
     });
   },
-  alreadyChallenged: function(challengeId) {
+  alreadyChallenged: function(challengeId, cb) {
     Challenge.findOne({ _id: challengeId }, function(err, c) {
-      return "There's already an active challenge between " + c.challenged[0] + " and " + c.challenger[0]
+      message = "There's already an active challenge between " + c.challenged[0] + " and " + c.challenger[0];
+      return message
     });
   },
   createSingleChallenge: function(challenger, challenged, cb) {
