@@ -558,7 +558,7 @@ var pong = {
     var totalRankings = "";
     players.forEach(function(player, i){
       if (players[i - 1]) {
-        if !(players[i - 1].elo == player.elo){
+        if (players[i - 1].elo != player.elo){
           rank = i + 1;
         }
       }
