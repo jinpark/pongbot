@@ -92,12 +92,13 @@ var pong = {
   },
   getActiveChallenges: function() {
     var activeChallengesString = "";
-    Challenge.find({state: "Accepted"}).sort({'date': 'desc'}, function(err, activeChallenges)
+    Challenge.find({state: "Accepted"}).sort({'date': 'desc'}).limit(5).find(function(err, activeChallenges) {
+      if (err) return handleError(err);
       activeChallenges.forEach(function(challenge, i) {
         var formattedDate = moment(challenge.date).format('MMMM Do YYYY, h:mm:ss a')
         activeChallengesString += formattedDate + ": " + challenge.challenger + " vs " + challenge.challenged + "\n"
       });
-    );
+    });
     if (activeChallengesString === "") {
       return "There are no current active challenges"
     }
