@@ -143,14 +143,14 @@ var pong = {
               cb(message);
             });
           } else {
-            Challenge.findOne({ _id: y2 }, function(err, c) {
+            Challenge.findOne({ _id: y2.currentChallenge }, function(err, c) {
               cb("There's already an active challenge between " + c.challenger[0] + " and " + c.challenged[0]);
               console.log(y2.challenger[0]);
             });
           }
         });
       } else {
-        Challenge.findOne({ _id: y }, function(err, c) {
+        Challenge.findOne({ _id: y.currentChallenge }, function(err, c) {
             cb("There's already an active challenge between " + c.challenged[0] + " and " + c.challenger[0]);
             console.log(y.challenged[0]);
         });
@@ -207,7 +207,7 @@ var pong = {
       if (err) return handleError(err);
       if (u) {
         if (u.currentChallenge) {
-          cb(u.currentChallenge);
+          cb(u);
         } else {
           cb(false);
         }
