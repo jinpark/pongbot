@@ -90,15 +90,19 @@ var pong = {
       console.log(users)
     });
   },
-  getActiveChallenges: function() {
+  getActiveChallenges: function(cb) {
     var activeChallengesString = "";
     Challenge.find({state: "Accepted"}).sort({'date': 'desc'}).limit(5).find(function(err, activeChallenges) {
       if (err) return handleError(err);
-      activeChallenges.forEach(function(challenge, i) {
-        var formattedDate = moment(challenge.date).format('MMMM Do YYYY, h:mm:ss a');
-        activeChallengesString += formattedDate + ": " + challenge.challenger + " vs " + challenge.challenged + "\n"
-      });
-      return activeChallengesString
+      if (activeChallenges) {
+        activeChallenges.forEach(function(challenge, i) {
+          var formattedDate = moment(challenge.date).format('MMMM Do YYYY, h:mm:ss a');
+          activeChallengesString += formattedDate + ": " + challenge.challenger + " vs " + challenge.challenged + "\n"
+        });
+        cb(activeChallengesString);
+      } else {
+        cb('There are no active challenges/matches currently.');
+      }
     });
   },
   updateWins: function(user_name, cb) {
@@ -713,7 +717,10 @@ app.post('/', function(req, res){
           });
           break;
       case "active":
-        res.json({text: pong.getActiveChallenges()});
+        pong.getActiveChallenges(function(activeChallenges) {
+          res.json({text: activeChallenges})
+        });
+        break;
       case "reset":
           var message = "";
           if (hook.user_name === "vy") {
