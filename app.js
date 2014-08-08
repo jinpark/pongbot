@@ -115,6 +115,12 @@ var pong = {
       }
     });
   },
+  alreadyChallenged: function(challengeId, cb) {
+    Challenge.findOne({ _id: challengeId }, function(err, c) {
+      message = "There's already an active challenge between " + c.challenged[0] + " and " + c.challenger[0];
+      return message
+    });
+  },
   createSingleChallenge: function(challenger, challenged, cb) {
     var message = "";
     pong.checkChallenge(challenger, function(y) {
@@ -132,16 +138,22 @@ var pong = {
               if (err) return new Error(err);
               pong.setChallenge(challenger, nc._id);
               pong.setChallenge(challenged, nc._id);
-              message = "You've challenged " + challenged + " to a ping pong match!";
+              message = challenger + " has challenged " + challenged + " to a ping pong match!";
               console.log(nc);
               cb(message);
             });
           } else {
-            cb("There's already an active challenge.");
+            Challenge.findOne({ _id: y2 }, function(err, c) {
+              cb("There's already an active challenge between " + c.challenger[0] + " and " + c.challenged[0]);
+              console.log(y2.challenger[0]);
+            });
           }
         });
       } else {
-        cb("There's already an active challenge.");
+        Challenge.findOne({ _id: y }, function(err, c) {
+            cb("There's already an active challenge between " + c.challenged[0] + " and " + c.challenger[0]);
+            console.log(y.challenged[0]);
+        });
       }
     });
   },
@@ -169,7 +181,7 @@ var pong = {
                         pong.setChallenge(c2, nc._id);
                         pong.setChallenge(c3, nc._id);
                         pong.setChallenge(c4, nc._id);
-                        message = "You and " + c2 + " have challenged " + c3 + " and " + c4 + " to a ping pong match!";
+                        message = c1 + " and " + c2 + " have challenged " + c3 + " and " + c4 + " to a ping pong match!";
                         cb(message);
                       });
                   } else {
@@ -195,7 +207,7 @@ var pong = {
       if (err) return handleError(err);
       if (u) {
         if (u.currentChallenge) {
-          cb(u);
+          cb(u.currentChallenge);
         } else {
           cb(false);
         }
@@ -564,15 +576,12 @@ var pong = {
   },
   getDuelGif: function(cb) {
     var gifs = [
-      "http://i235.photobucket.com/albums/ee210/f4nt0mh43d/BadDuel.gif",
-      "http://31.media.tumblr.com/99b8b1af381990801020079ae223a526/tumblr_mrbe6wQqR91sdds6qo1_500.gif",
-      "http://stream1.gifsoup.com/view3/1147041/duel-dollars-ending-o.gif",
-      "https://i.chzbgr.com/maxW500/5233508864/hC54C768C/",
-      "http://global3.memecdn.com/it-amp-039-s-time-to-duel_o_1532701.jpg",
-      "http://iambrony.dget.cc/mlp/gif/172595__UNOPT__safe_animated_trixie_spoiler-s03e05_magic-duel.gif",
-      "https://i.chzbgr.com/maxW500/2148438784/h7857A12F/",
-      "https://i.chzbgr.com/maxW500/3841869568/h2814E598/",
-      "http://24.media.tumblr.com/4e71f3df088eefed3d08ce4ce34e8d62/tumblr_mhyjqdJZ1g1s3r24zo1_500.gif"
+      "http://i.imgur.com/m0mVPXt.gif",
+      "http://i.imgur.com/wMgCOnH.gif",
+      "http://i.imgur.com/d8yvGgS.gif",
+      "http://i.imgur.com/jddSDqE.gif",
+      "http://i.imgur.com/YTfYIvL.gif",
+      "http://i.imgur.com/Jbphzw9.gif"
     ]
     var rand = gifs[Math.floor(Math.random() * gifs.length)];
     cb(rand);
