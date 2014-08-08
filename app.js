@@ -601,7 +601,10 @@ var pong = {
       "http://i.imgur.com/d8yvGgS.gif",
       "http://i.imgur.com/jddSDqE.gif",
       "http://i.imgur.com/YTfYIvL.gif",
-      "http://i.imgur.com/Jbphzw9.gif"
+      "http://i.imgur.com/Jbphzw9.gif",
+      "http://i.imgur.com/qKassrW.gif",
+      "http://i.imgur.com/oIxjQcA.gif",
+      "http://i.imgur.com/f5MVC3p.gif"
     ]
     var rand = gifs[Math.floor(Math.random() * gifs.length)];
     cb(rand);
