@@ -93,6 +93,7 @@ var pong = {
   getActiveChallenges: function() {
     var activeChallengesString = "";
     Challenge.find({state: "Accepted"}).sort({'date': 'desc'}).limit(5).find(function(err, activeChallenges) {
+      console.log(activeChallenges);
       if (err) return handleError(err);
       activeChallenges.forEach(function(challenge, i) {
         var formattedDate = moment(challenge.date).format('MMMM Do YYYY, h:mm:ss a')
