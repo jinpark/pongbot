@@ -22,10 +22,12 @@ var express = require('express')
 ,   mongoose = require('mongoose')
 ,   pluralize = require('pluralize')
 ,   request = require('request')
-,   moment = require('moment')
+,   moment = require('moment-timezone')
 ,   Schema = mongoose.Schema;
 
 var app = express();
+
+var TIMEZONE = 'America/New_York';
 
 var mongoUri = process.env.MONGOLAB_URI ||
   process.env.MONGOHQ_URL ||
@@ -96,12 +98,12 @@ var pong = {
       if (err) return handleError(err);
       if (activeChallenges) {
         activeChallenges.forEach(function(challenge, i) {
-          var formattedDate = moment(challenge.date).format('MMMM Do YYYY, h:mm:ss a');
+          var formattedDate = moment(challenge.date).tz(TIMEZONE).format('MMMM Do YYYY, h:mm:ss a');
           activeChallengesString += formattedDate + ": " + challenge.challenger + " vs " + challenge.challenged + "\n"
         });
         cb(activeChallengesString);
       } else {
-        cb('There are no active challenges/matches currently.');
+        cb('Currently, there are no active challenges/matches.');
       }
     });
   },
