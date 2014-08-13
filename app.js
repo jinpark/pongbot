@@ -260,7 +260,7 @@ var pong = {
         Challenge.findOne({ _id: y.currentChallenge }, function(err, c) {
           if (c.state === "Proposed") {
             c.state = "Accepted";
-            cb("Accepted the proposal.");
+            cb("Accepted the proposal. " + c.challenged + " vs " + c.challenger);
             c.save(function (err) {
               if (err) return handleError(err);
             });
@@ -413,7 +413,7 @@ var pong = {
             nc.state = "Finished";
             y.save(function(err) {
               if (err) return handleError(err);
-              cb("Match has been recorded.");
+              cb("Match has been recorded. " + nc.challenger[0] +  " and " + nc.challenger[1] +  " has defeated " + nc.challenged[0] + " and " + nc.challenged[1]);
             });
           } else {
             Player.update( {currentChallenge: nc._id}, {currentChallenge: null}, {multi: true}, function(err) {
@@ -428,7 +428,7 @@ var pong = {
             nc.state = "Finished";
             y.save(function(err) {
               if (err) return handleError(err);
-              cb("Match has been recorded.");
+              cb("Match has been recorded. " + nc.challenged[0] +  " and " + nc.challenged[1] +  " has defeated " + nc.challenger[0] + " and " + nc.challenger[1]);
             });
           }
         } else if (nc.type === "Singles") {
@@ -443,7 +443,7 @@ var pong = {
             nc.state = "Finished";
             y.save(function(err) {
               if (err) return handleError(err);
-              cb("Match has been recorded.");
+              cb("Match has been recorded. " + nc.challenger[0] + " has defeated " + nc.challenged[0]);
             });
           } else {
             Player.update( {currentChallenge: nc._id}, {currentChallenge: null}, {multi: true}, function(err) {
@@ -456,7 +456,7 @@ var pong = {
             nc.state = "Finished";
             y.save(function(err) {
               if (err) return handleError(err);
-              cb("Match has been recorded.");
+              cb("Match has been recorded. " + nc.challenged[0] + " has defeated " + nc.challenger[0]);
             });
           }
         }
@@ -486,7 +486,7 @@ var pong = {
             nc.state = "Finished";
             nc.save(function(err) {
               if (err) return handleError(err);
-              cb("Match has been recorded.");
+              cb("Match has been recorded. " + nc.challenger[0] +  " and " + nc.challenger[1] +  " has defeated " + nc.challenged[0] + " and " + nc.challenged[1]);
             });
           } else {
             Player.update( {currentChallenge: nc._id}, {currentChallenge: null}, {multi: true}, function(err) {
@@ -501,7 +501,7 @@ var pong = {
             nc.state = "Finished";
             nc.save(function(err) {
               if (err) return handleError(err);
-              cb("Match has been recorded.");
+              cb("Match has been recorded. " + nc.challenged[0] +  " and " + nc.challenged[1] +  " has defeated " + nc.challenger[0] + " and " + nc.challenger[1]);
             });
           }
         } else if (nc.type === "Singles") {
@@ -516,7 +516,7 @@ var pong = {
             nc.state = "Finished";
             nc.save(function(err) {
               if (err) return handleError(err);
-              cb("Match has been recorded.");
+              cb("Match has been recorded. " + nc.challenger[0] + " has defeated " + nc.challenged[0]);
             });
           } else {
             Player.update( {currentChallenge: nc._id}, {currentChallenge: null}, {multi: true}, function(err) {
@@ -529,7 +529,7 @@ var pong = {
             nc.state = "Finished";
             nc.save(function(err) {
               if (err) return handleError(err);
-              cb("Match has been recorded.");
+              cb("Match has been recorded. " + nc.challenged[0] + " has defeated " + nc.challenger[0]);
             });
           }
         }
