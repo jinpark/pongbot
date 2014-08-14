@@ -114,7 +114,7 @@ var pong = {
       if (proposedChallenges) {
         proposedChallenges.forEach(function(challenge, i) {
           var formattedDate = moment(challenge.date).tz(TIMEZONE).format('MMMM Do YYYY, h:mm:ss a');
-          proposedChallengesString += formattedDate + ": " + challenge.challenger + " has challenged " + challenge.challenged + "\n"
+          proposedChallengesString += formattedDate + ": " + challenge.challenger + " is waiting for " + challenge.challenged + " to accept \n"
         });
         cb(proposedChallengesString);
       } else {
