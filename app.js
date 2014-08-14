@@ -93,7 +93,7 @@ var pong = {
     });
   },
   getActiveChallenges: function(cb) {
-    var activeChallengesString = "";
+    var activeChallengesString = "Current active challenges: \n";
     Challenge.find({state: "Accepted"}).sort({'date': 'asc'}).limit(5).find(function(err, activeChallenges) {
       if (err) return handleError(err);
       if (activeChallenges) {
@@ -104,6 +104,21 @@ var pong = {
         cb(activeChallengesString);
       } else {
         cb('Currently, there are no active challenges/matches.');
+      }
+    });
+  },
+  getProposedChallenges: function(cb) {
+    var proposedChallengesString = "Current pending challenges: \n";
+    Challenge.find({state: "Proposed"}).sort({'date': 'asc'}).limit(5).find(function(err, proposedChallenges) {
+      if (err) return handleError(err);
+      if (proposedChallenges) {
+        proposedChallenges.forEach(function(challenge, i) {
+          var formattedDate = moment(challenge.date).tz(TIMEZONE).format('MMMM Do YYYY, h:mm:ss a');
+          proposedChallengesString += formattedDate + ": " + challenge.challenger + " vs " + challenge.challenged + "\n"
+        });
+        cb(proposedChallengesString);
+      } else {
+        cb('Currently, there are no proposed challenges/matches.');
       }
     });
   },
@@ -754,7 +769,10 @@ app.post('/', function(req, res){
       case "matches":
       case "active":
         pong.getActiveChallenges(function(activeChallenges) {
-          res.json({text: activeChallenges})
+          pong.getProposedChallenges(function(proposedChallenges){
+            var activeAndProposedChallenges = activeChallenges + "\n" + proposedChallenges;
+            res.json({text: activeAndProposedChallenges})
+          })
         });
         break;
       case "reset":
