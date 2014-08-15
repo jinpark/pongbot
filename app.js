@@ -606,7 +606,7 @@ var pong = {
           rank = i + 1;
         }
       }
-      var playerstring = rank + ". " + player.user_name + " | " + pluralize('win', player.wins, true) + " " + pluralize('loss', player.losses, true) + "\n";
+      var playerstring = rank + ". *" + player.user_name + "* " + pluralize('win', player.wins, true) + " " + pluralize('loss', player.losses, true) + "[" + player.elo  + "]" + "\n";
       totalRankings += playerstring;
     })
     return totalRankings
