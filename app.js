@@ -862,7 +862,7 @@ app.get('/api/matches', function(req, res) {
 // LIVE SCORING TEST
 app.post('/api/live/scan/:id', function(req, res) {
   console.log("Got a POST!");  
-  console.log("ID: " + id);
+  console.log("ID: " + req.params.id );
   res.json({"scan": true});
 });
 
