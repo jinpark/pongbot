@@ -859,6 +859,14 @@ app.get('/api/matches', function(req, res) {
   });
 });
 
+// LIVE SCORING TEST
+app.post('/api/live/scan', function(req, res) {
+  console.log("Got a POST!");  
+  console.log("BODY: " + req.body);
+  res.json({"scan": true});
+});
+
+
 // up/down endpoint
 app.get('/api/system/ping', function(req, res) {
   res.json({"ping": "pong"});
