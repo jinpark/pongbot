@@ -860,9 +860,9 @@ app.get('/api/matches', function(req, res) {
 });
 
 // LIVE SCORING TEST
-app.post('/api/live/scan', function(req, res) {
+app.post('/api/live/scan/:id', function(req, res) {
   console.log("Got a POST!");  
-  console.log("BODY: " + req.body);
+  console.log("ID: " + id);
   res.json({"scan": true});
 });
 
