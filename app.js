@@ -23,6 +23,7 @@ var express = require('express')
 ,   pluralize = require('pluralize')
 ,   request = require('request')
 ,   moment = require('moment-timezone')
+,   chalk = require('chalk')
 ,   Schema = mongoose.Schema;
 
 var app = express();
@@ -34,6 +35,10 @@ var mongoUri = process.env.MONGOLAB_URI ||
   'mongodb://localhost/pingpong';
 mongoose.connect(mongoUri);
 
+
+// POST to this URI with payload={"text": "STUFF GOES HERE"}
+var slackUri = 'https://dramafever.slack.com/services/hooks/incoming-webhook?token=PgnzQtt2eHfnRHkcNwchp3A0';
+
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
@@ -43,7 +48,13 @@ var PlayerSchema = new Schema({
   losses: Number,
   elo: Number,
   tau: Number,
-  currentChallenge: { type: Schema.Types.ObjectId, ref: 'Challenge' }
+  currentChallenge: { type: Schema.Types.ObjectId, ref: 'Challenge' },
+  rfid: String,
+  name: String,
+  image: String,
+  uri: String,
+  gender: String,
+  play_count: Number
 });
 
 var ChallengeSchema = new Schema({
@@ -54,8 +65,13 @@ var ChallengeSchema = new Schema({
   challenged: Array
 });
 
+var UnclaimedSchema = new Schema({
+  tag: String
+});
+
 var Player = mongoose.model('Player', PlayerSchema);
 var Challenge = mongoose.model('Challenge', ChallengeSchema);
+var Unclaimed = mongoose.model('Unclaimed', UnclaimedSchema);
 
 var pong = {
 	init: function() {
@@ -65,10 +81,16 @@ var pong = {
   registerPlayer: function(user_name, cb) {
     var p = new Player({
       user_name: user_name,
+      name: user_name,
       wins: 0,
       losses: 0,
+      play_count: 0,
       elo: 0,
-      tau: 0
+      tau: 0,
+      image: '',
+      rfid: '',
+      uri: '',
+      gender: '',
     });
     p.save( function(err) {
       if (err) return new Error(err);
@@ -128,6 +150,7 @@ var pong = {
       if (err) return handleError(err);
       if (user) {
         user.wins++;
+        user.play_count++;
         user.save(function (err, user) {
           if (err) return handleError(err);
           if (cb) cb();
@@ -141,6 +164,7 @@ var pong = {
       if (err) return handleError(err);
       if (user) {
         user.losses++;
+        user.play_count++;
         user.save(function (err, user) {
           if (err) return handleError(err);
           if (cb) cb();
@@ -611,6 +635,9 @@ var pong = {
     })
     return totalRankings
   },
+  claimTag: function(user_name, cb) {
+    return true;
+  },
   getDuelGif: function(cb) {
     var gifs = [
       "http://i.imgur.com/m0mVPXt.gif",
@@ -677,6 +704,32 @@ app.post('/', function(req, res){
               message = "Successfully registered! Welcome to the system, " + hook.user_name + ".";
             }
             res.json({text: message});
+          });
+          break;
+      case "claim":
+          var message = "";
+          // check if registered
+          pong.findPlayer(hook.user_name, function(user) {
+            if (user) {
+              var q = Unclaimed.where({ tag: params[2] });
+              q.findOne(function (err, tag) {
+                if (err) return handleError(err);
+                if (tag) {
+                  user.rfid = tag.tag;
+                  user.save();
+                  message = "Added tag " + tag.tag + " to your profile!";
+                  res.json({text: message});
+                  tag.remove();                  
+                } else {
+                  message = "Invalid tag or already claimed. Go scan and come back.";    
+                  res.json({text: message});
+                }
+              });
+
+            } else if (user === false) {
+              message = "You're not registered! Use the command 'pongbot register' to get into the system.";
+              res.json({text: message});
+            }
           });
           break;
     	case "challenge":
@@ -848,6 +901,7 @@ app.post('/commands', function(req, res){
 app.get('/api/rankings', function(req, res) {
   Player.find({}).sort({'elo': 'descending'}).find( function(err, players) {
     if (err) return handleError(err);
+    // Need to add play_count as sum(wins + losses)
     res.json(players);
   });
 });
@@ -859,18 +913,106 @@ app.get('/api/matches', function(req, res) {
   });
 });
 
-// LIVE SCORING TEST
-app.post('/api/live/scan/:id', function(req, res) {
-  console.log("Got a POST!");  
-  console.log("ID: " + req.params.id );
-  res.json({"scan": true});
+// RFID Table Integration
+
+/*
+ * 1) Read Tag and Initiate Challenge on Pongbot
+ * 2) Receive winner/loser info
+ * 3) X Output Leaderboard JSON
+ * [{"id":1,"rfid":"75007375BCCF","name":"Romanos","gender":"Male","uri":"/playerURI",
+ *  "elo":99,"image":"alex.png","play_count":8,"created_at":null,"updated_at":null},...]
+ */
+
+// Once RFID is scanned, Initiate Challenge
+app.get('/rfid/challenge', function(req, res) {
+  res.json({"hi": "there"});
 });
 
+// Find Scanned Tag
+app.get('/rfid/find/:tag', function(req, res) {
+  var q = Player.where({ rfid: params['tag'] });
+  q.findOne(function (err, user) {
+    if (err) return handleError(err);
+    if (user) {
+      res.json( user );
+    }
+  });
+});
+
+// Add Unclaimed Tag to Mongo
+app.get('/rfid/unclaimed/:tag', function(req, res) {
+  console.log(chalk.green('Looking for Tag: ' + req.params.tag));
+  if (req.params.tag !== undefined ) {
+    Unclaimed.findOne({ tag: req.params.tag }, function(err, tag) {
+      if (!tag) {
+        var t = new Unclaimed({
+          tag: req.params.tag
+        });
+        t.save();
+      } else {
+        console.log(chalk.red('Duplicate!'));
+      }
+    });
+  }
+  res.status(200).end();
+});
+
+// Show unclaimed tag
+app.get('/rfid/unclaimed', function(req, res) {
+  Unclaimed.find('','tag', function(err, tags) {
+    if (err) return handleError(err);
+    res.json( tags );
+  });
+});
+
+// Get leaderboard JSON
+app.get('/leaderboard', function(req, res){
+  Player.find({$or:[{"wins":{"$ne":0}},{"losses":{"$ne":0}}]}).sort({'elo': 'descending', 'wins': 'descending'}).limit(10).find( function(err, players) {
+    if (err) return handleError(err);
+    //var totalPlayers = pong.getRankings(players);
+    res.json(players);
+  });
+});
+
+// Get challenges
+app.get('/challenges', function(req, res){
+  Challenge.find(function(err, challenges) {
+    res.json(challenges);
+  });
+});
+
+// Record a finished RFID match
+app.get('/rfid/match/:winner/:loser', function(req, res){
+  var w = params.winner,
+      l = params.loser;
+
+  // Create a new, finished challenge    
+  var c = new Challenge({
+    state: "Finished",
+    type: "Singles",
+    date: Date.now(),
+    challenger: [ w ],
+    challenged: [ l ]
+  });
+  c.save( function(err, nc) {
+    if (err) return new Error(err);
+
+    // Update Stats if Everything goes well
+    pong.eloSinglesChange( w, l );
+    pong.updateWins( w );
+    pong.updateLosses( l );
+    console.log(chalk.yellow('Recorded Match!!!'));
+    res.json({recorded: true});  
+  }); 
+  console.log(chalk.red('Something went wrong.'));
+  res.json({recorded: false});
+
+});
 
 // up/down endpoint
 app.get('/api/system/ping', function(req, res) {
   res.json({"ping": "pong"});
 });
 
-app.listen(process.env.PORT || 3000);
-console.log("Listening on port 3000!");
+app.listen(process.env.PORT || 4000);
+console.log("Listening on port 4000!");
