@@ -4,6 +4,7 @@
   "description": "Pongbot for Opal.",
   "main": "app.js",
   "dependencies": {
+    "restler": "",
     "chalk": "",
     "body-parser": "",
     "express": "^4.4.5",

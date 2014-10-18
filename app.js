@@ -24,6 +24,7 @@ var express = require('express')
 ,   request = require('request')
 ,   moment = require('moment-timezone')
 ,   chalk = require('chalk')
+,   rest = require('restler')
 ,   Schema = mongoose.Schema;
 
 var app = express();
@@ -38,6 +39,8 @@ mongoose.connect(mongoUri);
 
 // POST to this URI with payload={"text": "STUFF GOES HERE"}
 var slackUri = 'https://dramafever.slack.com/services/hooks/incoming-webhook?token=PgnzQtt2eHfnRHkcNwchp3A0';
+var rfidServer = process.env.NODE_ENV == 'development' ? 
+  'http://www.lvh.me:3000' : 'http://stormy-woodland-4323.herokuapp.com/' ;
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -105,6 +108,16 @@ var pong = {
         cb(user);
       } else {
         cb(false);
+      }
+    });
+  },
+  sendPlayer: function( user ) {
+    rest.postJson( rfidServer + '/players/add', {user: user})
+    .on('complete', function(data, response) {
+      if (response.statusCode == 200 ) {
+        console.log(chalk.green('User Added to RFID System')); 
+      } else {
+        console.log(chalk.red('Error Adding User!')); 
       }
     });
   },
@@ -707,16 +720,23 @@ app.post('/', function(req, res){
           });
           break;
       case "claim":
+          // Check if registered, 
+          // pongbot claim RFID NAME GENDER
           var message = "";
-          // check if registered
           pong.findPlayer(hook.user_name, function(user) {
             if (user) {
               var q = Unclaimed.where({ tag: params[2] });
               q.findOne(function (err, tag) {
                 if (err) return handleError(err);
                 if (tag) {
-                  user.rfid = tag.tag;
+                  user.rfid   = tag.tag;
+                  user.name   = params[3] || hook.user_name;
+                  user.gender = params[4] || "";
                   user.save();
+
+                  // Pass Player to RFID System
+                  pong.sendPlayer( user );
+                  
                   message = "Added tag " + tag.tag + " to your profile!";
                   res.json({text: message});
                   tag.remove();                  
@@ -913,24 +933,21 @@ app.get('/api/matches', function(req, res) {
   });
 });
 
-// RFID Table Integration
-
-/*
- * 1) Read Tag and Initiate Challenge on Pongbot
- * 2) Receive winner/loser info
- * 3) X Output Leaderboard JSON
- * [{"id":1,"rfid":"75007375BCCF","name":"Romanos","gender":"Male","uri":"/playerURI",
- *  "elo":99,"image":"alex.png","play_count":8,"created_at":null,"updated_at":null},...]
- */
-
-// Once RFID is scanned, Initiate Challenge
-app.get('/rfid/challenge', function(req, res) {
-  res.json({"hi": "there"});
+// up/down endpoint
+app.get('/api/system/ping', function(req, res) {
+  res.json({"ping": "pong"});
 });
+
+
+/*****************************
+ *
+ * RFID SYSTEM INTEGRATION
+ *
+ *****************************/
 
 // Find Scanned Tag
 app.get('/rfid/find/:tag', function(req, res) {
-  var q = Player.where({ rfid: params['tag'] });
+  var q = Player.where({ rfid: req.params.tag });
   q.findOne(function (err, user) {
     if (err) return handleError(err);
     if (user) {
@@ -957,7 +974,7 @@ app.get('/rfid/unclaimed/:tag', function(req, res) {
   res.status(200).end();
 });
 
-// Show unclaimed tag
+// Show unclaimed tags
 app.get('/rfid/unclaimed', function(req, res) {
   Unclaimed.find('','tag', function(err, tags) {
     if (err) return handleError(err);
@@ -965,16 +982,15 @@ app.get('/rfid/unclaimed', function(req, res) {
   });
 });
 
-// Get leaderboard JSON
+// Get leaderboard JSON to reflect on RFID Screen
 app.get('/leaderboard', function(req, res){
   Player.find({$or:[{"wins":{"$ne":0}},{"losses":{"$ne":0}}]}).sort({'elo': 'descending', 'wins': 'descending'}).limit(10).find( function(err, players) {
     if (err) return handleError(err);
-    //var totalPlayers = pong.getRankings(players);
     res.json(players);
   });
 });
 
-// Get challenges
+// Get Challenges JSON
 app.get('/challenges', function(req, res){
   Challenge.find(function(err, challenges) {
     res.json(challenges);
@@ -983,8 +999,11 @@ app.get('/challenges', function(req, res){
 
 // Record a finished RFID match
 app.get('/rfid/match/:winner/:loser', function(req, res){
-  var w = params.winner,
-      l = params.loser;
+
+  console.log(chalk.green('Incoming match statistics.'));
+
+  var w = req.params.winner,
+      l = req.params.loser;
 
   // Create a new, finished challenge    
   var c = new Challenge({
@@ -995,24 +1014,23 @@ app.get('/rfid/match/:winner/:loser', function(req, res){
     challenged: [ l ]
   });
   c.save( function(err, nc) {
-    if (err) return new Error(err);
-
-    // Update Stats if Everything goes well
-    pong.eloSinglesChange( w, l );
-    pong.updateWins( w );
-    pong.updateLosses( l );
-    console.log(chalk.yellow('Recorded Match!!!'));
-    res.json({recorded: true});  
+    if (err) {
+      console.log(chalk.red('Something went wrong.'));
+      res.json({recorded: false});
+      return new Error(err);
+    } else {
+      // Update Stats if Everything goes well
+      pong.eloSinglesChange( w, l );
+      pong.updateWins( w );
+      pong.updateLosses( l );
+      console.log(chalk.yellow('Recorded Match!!!'));
+      res.json({recorded: true});        
+    }
   }); 
-  console.log(chalk.red('Something went wrong.'));
-  res.json({recorded: false});
-
 });
 
-// up/down endpoint
-app.get('/api/system/ping', function(req, res) {
-  res.json({"ping": "pong"});
-});
+
+
 
 app.listen(process.env.PORT || 4000);
 console.log("Listening on port 4000!");
