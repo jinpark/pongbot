@@ -40,7 +40,7 @@ mongoose.connect(mongoUri);
 // POST to this URI with payload={"text": "STUFF GOES HERE"}
 var slackUri = 'https://dramafever.slack.com/services/hooks/incoming-webhook?token=PgnzQtt2eHfnRHkcNwchp3A0';
 var rfidServer = process.env.NODE_ENV == 'development' ? 
-  'http://www.lvh.me:3000' : 'http://stormy-woodland-4323.herokuapp.com/' ;
+  'http://www.lvh.me:3000' : 'http://stormy-woodland-4323.herokuapp.com' ;
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
