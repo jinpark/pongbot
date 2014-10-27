@@ -13,7 +13,8 @@
     "mongoose": "",
     "node-slack": "^0.0.3",
     "pluralize": "0.0.11",
-    "request": ""
+    "request": "",
+    "underscore": "^1.7.0"
   },
   "devDependencies": {},
   "scripts": {

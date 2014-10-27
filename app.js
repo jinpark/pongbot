@@ -25,6 +25,7 @@ var express = require('express')
 ,   moment = require('moment-timezone')
 ,   chalk = require('chalk')
 ,   rest = require('restler')
+,   _ = require('underscore')
 ,   Schema = mongoose.Schema;
 
 var app = express();
@@ -39,7 +40,7 @@ mongoose.connect(mongoUri);
 
 // POST to this URI with payload={"text": "STUFF GOES HERE"}
 var slackUri = 'https://dramafever.slack.com/services/hooks/incoming-webhook?token=PgnzQtt2eHfnRHkcNwchp3A0';
-var rfidServer = process.env.NODE_ENV == 'development' ? 
+var rfidServer = process.env.NODE_ENV == 'development' ?
   'http://www.lvh.me:3000' : 'http://stormy-woodland-4323.herokuapp.com' ;
 
 app.use(bodyParser.urlencoded({extended: false}));
@@ -115,9 +116,9 @@ var pong = {
     rest.postJson( rfidServer + '/players/add', {user: user})
     .on('complete', function(data, response) {
       if (response.statusCode == 200 ) {
-        console.log(chalk.green('User Added to RFID System')); 
+        console.log(chalk.green('User Added to RFID System'));
       } else {
-        console.log(chalk.red('Error Adding User!')); 
+        console.log(chalk.red('Error Adding User!'));
       }
     });
   },
@@ -720,7 +721,7 @@ app.post('/', function(req, res){
           });
           break;
       case "claim":
-          // Check if registered, 
+          // Check if registered,
           // pongbot claim RFID NAME GENDER
           var message = "";
           pong.findPlayer(hook.user_name, function(user) {
@@ -736,12 +737,12 @@ app.post('/', function(req, res){
 
                   // Pass Player to RFID System
                   pong.sendPlayer( user );
-                  
+
                   message = "Added tag " + tag.tag + " to your profile!";
                   res.json({text: message});
-                  tag.remove();                  
+                  tag.remove();
                 } else {
-                  message = "Invalid tag or already claimed. Go scan and come back.";    
+                  message = "Invalid tag or already claimed. Go scan and come back.";
                   res.json({text: message});
                 }
               });
@@ -848,18 +849,24 @@ app.post('/', function(req, res){
           })
         });
         break;
-      case "reset":
+      case "gifs":
+      case "gif":
+        pong.getDuelGif( function(gif) {
+          res.json({text: gif});
+        });
+      case "new_season":
           var message = "";
-          if (hook.user_name === "vy") {
-            pong.findPlayer(params[2], function(user) {
-              if (user) {
-                pong.reset(params[2], function() {
-                  message = params[2] + "'s stats have been reset.";
-                  res.json({text: message});
-                });
-              } else if (user === false) {
-                message = "You're not registered! Use the command 'pongbot register' to get into the system.";
+          var secret = params[2];
+          if (hook.user_name === process.env.ADMIN_NAME && secret === process.env.ADMIN_SECRET) {
+            Player.find({}, function(err, players) {
+              if (err) return handleError(err);
+              var respond_after = _.after(players.length, function () {
+                message = "Welcome to the new season.";
                 res.json({text: message});
+              })
+              for (i = 0;i < players.length; i++) {
+                var user_name = players[i].user_name
+                pong.reset(user_name, respond_after);
               }
             });
           } else {
@@ -867,12 +874,6 @@ app.post('/', function(req, res){
             res.json({text: message});
           }
           break;
-      case "gifs":
-      case "gif":
-        pong.getDuelGif( function(gif) {
-          res.json({text: gif});
-        });
-        break;
       case "source":
           res.json({text: "https://github.com/andrewvy/opal-pongbot"});
           break;
@@ -1005,7 +1006,7 @@ app.get('/rfid/match/:winner/:loser', function(req, res){
   var w = req.params.winner,
       l = req.params.loser;
 
-  // Create a new, finished challenge    
+  // Create a new, finished challenge
   var c = new Challenge({
     state: "Finished",
     type: "Singles",
@@ -1024,9 +1025,9 @@ app.get('/rfid/match/:winner/:loser', function(req, res){
       pong.updateWins( w );
       pong.updateLosses( l );
       console.log(chalk.yellow('Recorded Match!!!'));
-      res.json({recorded: true});        
+      res.json({recorded: true});
     }
-  }); 
+  });
 });
 
 
