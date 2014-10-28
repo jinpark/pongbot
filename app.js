@@ -640,7 +640,7 @@ var pong = {
   },
   getRankings: function(players){
     var rank = 1;
-    var totalRankings = "0. ndh - the king \n";
+    var totalRankings = "0. *ndh* - the king \n";
     players.forEach(function(player, i){
       if (players[i - 1]) {
         if (players[i - 1].elo != player.elo){
