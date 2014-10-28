@@ -840,8 +840,6 @@ app.post('/', function(req, res){
           Player.find({$or:[{"wins":{"$ne":0}},{"losses":{"$ne":0}}]}).sort({'elo': 'descending', 'wins': 'descending'}).limit(topN).find( function(err, players) {
             if (err) return handleError(err);
             var totalPlayers = pong.getRankings(players);
-            console.log('total player here')
-            console.log(totalPlayers);
             if (totalPlayers){
               res.json({text: totalPlayers});
             } else {
