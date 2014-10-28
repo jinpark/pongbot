@@ -179,12 +179,9 @@ var pong = {
       if (user) {
         user.losses++;
         user.play_count++;
-        console.log('this is user');
-        console.log(user);
         user.save(function (err, user) {
           if (err) {
             console.log('error in update losses');
-            console.log(err);
           }
           if (err) return handleError(err);
           if (cb) cb();
@@ -814,7 +811,6 @@ app.post('/', function(req, res){
     	case "lost":
           pong.findPlayer(hook.user_name, function(user) {
             if (user) {
-              console.log('in lost');
               pong.lose(hook.user_name, function(m) {
                 res.json({text: m});
               });
