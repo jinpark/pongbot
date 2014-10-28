@@ -58,7 +58,7 @@ var PlayerSchema = new Schema({
   image: String,
   uri: String,
   gender: String,
-  play_count: Number
+  play_count: { type: Number, default: 0 }
 });
 
 var ChallengeSchema = new Schema({
@@ -179,6 +179,8 @@ var pong = {
       if (user) {
         user.losses++;
         user.play_count++;
+        console.log('this is user');
+        console.log(user);
         user.save(function (err, user) {
           if (err) {
             console.log('error in update losses');
